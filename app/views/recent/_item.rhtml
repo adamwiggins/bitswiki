@@ -1,0 +1,7 @@
+<td class="itemtime">
+  <%= relative_time(item.created_at) %>
+</td>
+<td class="itemdesc">
+  <% name = item.class == Revision ? "revision #{item.rid} by #{item.user.name}" : "comment by #{item.user.name}" %>
+  <%= link_to name, recent_item_link(item) %>
+</td>

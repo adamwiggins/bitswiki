@@ -1,0 +1,208 @@
+<% if @revision.latest? && !@revision.new_record? %>
+  <% @rss_feed = auto_discovery_link_tag(:rss, feed_url_options(@page)) %>
+<% end %>
+
+<div id="drawer_actions">
+  <span id="edit_link_text" style="display: none"><%= "edit" %></span>
+  <ul>
+    <% if can_edit? %>
+      <li id="drawer_link_edit" <%= 'style="display: none"' if comparing? %>>
+        <%= link_to_function "edit", "drawerManager.openDrawer('edit')", :id => 'drawer_link_edit_a', :href => url_for(:action => 'edit'), :accesskey => "E" %>
+      </li>
+    <% end %>
+    <li id="drawer_link_revisions">
+      <%= link_to_function 'revisions', "drawerManager.openDrawer('revisions')", :id => 'drawer_link_revisions_a', :href => url_for(:show_revisions => 1, :action => 'show'), :accesskey => "R" %>
+    </li>
+    <li id="drawer_link_tags" <%= 'style="display: none"' if @page.title == 'Contents' %>>
+      <%= link_to_function 'tags', "drawerManager.openDrawer('tags')", :id => 'drawer_link_tags_a', :href => url_for(:show_tags => 1, :action => 'show'), :accesskey => "T" %>
+    </li>
+    <%= render :file => "drawers/search_link" %>
+  </ul>
+</div>
+
+<% if can_edit? %>
+<div id="edit" class="drawer" <%= 'style="display: none"' unless editing? %>><div id="edit_inner">
+   <%= form_tag :action => "save" %>
+    <!-- hack around firefox textarea scroll bar issue -->
+      <div id="edit_content_dummy" style="display: none">&nbsp;</div>
+    <!-- end hack -->
+    <%= text_area_tag "edit_content", @revision.content, :cols => "70", :rows => "15" %><br />
+    <%= link_to "Wiki Formatting", { :title => 'Wiki Formatting', :action => 'popup' }, :popup => ['new_window', 'width=515,height=600,scrollbars=yes'], :id => "wiki_formatting" %>
+    &nbsp;&nbsp;&nbsp;
+    <%= observe_field 'edit_content', :with => 'edit_content', :function => "editManager.editPreview('"+url_for(:action => 'edit_preview')+"', value)", :frequency => 2 %>
+    <%
+      # disabled for now -- gets tricky with RSS
+      # if @revision.latest? && @revision.user_id == @user.id
+      if false
+    %>
+      <%= check_box_tag "minor" %> Minor Edit
+    <% end %>
+    <div id="edit_actions">
+      <% unless @user %>
+        Username: <%= text_field 'user', 'name', :value => 'anonymous', :size => 15 %>
+      <% end %>
+      <%= submit_tag "Save" %>
+      <% 
+        # this isn't working properly because the cancel button resets the edit_content
+        # textarea which then triggers the update again, which messes up the div content
+        # so for now it's been replaced with a non-ajax cancel button
+        #submit_to_remote("edit_cancel", "Cancel", :url => { :action => "edit_cancel", :rev => @revision.id }) unless @revision.new_record?
+      %>
+      <%= submit_tag "Cancel", :name => 'cancel', :onclick => "editManager.cancel()" unless @revision.new_record? %>
+    </div>
+  </form>
+</div></div>
+<% end %>
+
+<div id="tags" class="drawer" <%= 'style="display: none"' unless show_tags? %>><div id="tags_inner">
+  <div id="tags_content" <%= 'style="display: none"' if show_edit_tags? %>>
+    <% if @page.tags.length > 0 %>
+      <table><tr>
+        <% make_columns(@page.tags_with_counts).each do |col| %>
+          <td><table>
+            <% col.each do |t| %>
+              <tr><td>
+                <%= link_to t.name, :controller => 'tag', :tag => t.name %> (<%= t.count %>)<br />
+              </td></tr>
+            <% end %>
+          </table></td>
+        <% end %>
+      </tr></table>
+    <% else %>
+      <table><tr><td>no tags yet</td></tr></table>
+    <% end %>
+    <% if can_edit? %>
+    <br /><%= link_to_function "Edit", "editManager.editTags()", :id => "edit_tags_action", :href => url_for(:show_edit_tags => 1), :style => show_edit_tags? ? "display: none" : "" %>
+    <% end %>
+  </div>
+  <div id="edit_tags" <%= 'style="display: none"' unless show_edit_tags? %>>
+    <%= form_tag :action => "save_tags" %>
+      <%= text_area_tag "edit_tags", params[:edit_tags] || @page.tags_edit, :cols => "30", :rows => 6, :id => "edit_tags_textarea" %><br />
+      each tag on its own line<br />
+      subtag format: "tag.subtag"<br />
+      <br />
+      <%= submit_tag "Save", :name => 'save' %>
+      <%= submit_tag "Cancel", :onclick => "editManager.cancelTags(); return false;" %>
+    </form>
+  </div>
+</div></div> <!-- /tags -->
+
+<div id="revisions" class="drawer" <%= 'style="display: none"' unless show_revisions? %>><div id="revisions_inner">
+  <%= form_tag({ :action => "compare_form" }, :id => "compare_form", :onsubmit => "return versionManager.ensureSelectedVersions()") %>
+    <% num = @page.index_revisions.length + 1 %>
+    <% if num > 1 %>
+      <table><tr>
+        <% make_columns(@page.index_revisions).each do |col| %>
+          <td class="revisioncol"><table>
+            <% col.each do |r| %>
+              <% if @revision == r %>
+                <%= '<tr class="' + (comparing? ? "added" : "current") + '">' %>
+              <% elsif comparing? && @revision_old == r %>
+                <tr class="old">
+              <% else %>
+                <tr>
+              <% end %>
+              <td>
+                <span><%= num -= 1 %></span>
+                <%= check_box_tag "compare[]", r.id, comparing? && (r == @revision || r == @revision_old), :id => "compare_#{r.id}", :onclick => "versionManager.checked(this)" %>
+                <%= link_to relative_time(r.created_at), :action => "show", :rev => r %>
+                <span class="revision_by"><%= r.user.name %></span>
+              </td>
+            </tr>
+          <% end %>
+          </table></td>
+        <% end %>
+      </tr></table>
+      <% unless @revision.only? %>
+        Check two and <%= submit_tag "Compare", :id => "compare_button" %>
+      <% end %>
+      <% unless @revision.only? || comparing? %>
+        or <%= link_to "Quick Compare", { :action => "compare", :rev => @revision }, :accesskey => "Q" %>
+      <% end %>
+    <% else %>
+      <table><tr><td>no revisions yet</td></tr></table>
+    <% end %>
+  </form>
+</div></div> <!-- /revisions -->
+
+<%= render :file => "drawers/search" %>
+
+<% if @revision.latest? && !comparing? %>
+  <% unless @revision.new_record? %>
+    <div id="info_bar">
+      <%= feed_icon(@page) %>
+      <%= relative_time(@page.last_modified) rescue nil %>
+    </div>
+  <% end %>
+<% else %>
+  <div id="comparison_bar">
+    <% if comparing? %>
+      comparing <ins class="diffins">revision <%= @revision.rid %></ins> and <del class="diffdel">revision <%= @revision_old.rid %></del>
+      <% unless @revision.latest? %>
+        &nbsp;|&nbsp;
+        <%= link_to "latest is #{@page.index_revisions.first.rid}", { :rev => nil, :action => 'show' }, :accesskey => "L" rescue nil %>
+      <% end %>
+      &nbsp;|&nbsp;
+      <%= link_to "done comparing", { :action => "show", :rev => @revision }, :accesskey => "D" %>
+    <% else %>
+      viewing revision <%= @revision.rid %> from <%= relative_time(@revision.created_at) rescue nil %>
+      &nbsp;|&nbsp;
+      <%= link_to "latest is #{@page.index_revisions.first.rid}", { :rev => nil }, :accesskey => "L" rescue nil %>
+    <% end %>
+  </div>
+<% end %>
+
+<%= render :file => "errors/flash" %>
+
+<% if @page.title == 'Contents' %>
+  <div class="sidebar">
+    <h2><%= link_to "recent changes", :controller => "recent" %></h2>
+    <%= render :partial => 'recent/items_tight', :object => Page.recent_items, :locals => { :options => { :per_page => 1, :limit => 5 } } %>
+    <br />
+    <h2><%= link_to "all tags", :controller => "tags" %></h2>
+    <%= render :partial => 'tag/tags', :locals => { :options => { :top_only => true } } %>
+  </div>
+<% end %>
+
+<div id="page">
+  <div class="textile" id="title">
+    <h1><%= @page.title %></h1>
+    <hr />
+  </div>
+  <div id="page_content" class="textile">
+    <%= @content %>
+  </div> <!-- /pagecontent -->
+
+  <div id="comments">
+    <hr class="separator" />
+    <h2>Comments</h2>
+
+    <% unless show_add_comment? %>
+      <div id="comment_action">
+        <%= link_to_function "Add Comment", "commentManager.add()", :href => url_for(:show_add_comment => 1) %>
+      </div>
+    <% end %>
+    
+    <div id="add_comment" <%= 'style="display: none"' unless show_add_comment? %>>
+       <%= form_tag :action => "add_comment" %>
+        <%= text_area_tag "comment", nil, :cols => "50", :rows => 6 %><br />
+        <%= submit_tag "Save", :name => 'save' %>
+        <%= submit_tag "Cancel", :onclick => "commentManager.cancel(); return false;" %>
+      </form>
+    </div>
+
+    <% @page.comments.each do |c| %>
+      <div class="comment">
+        <hr />
+        <div class="comment_info">
+          <a name="comment_<%= c.id %>"></a>
+          <span class="comment_author"><%= c.user.name %></span><br />
+          <span class="comment_time"><%= relative_time(c.created_at) %> – looking at <%= link_to "version #{c.revision.rid}", :action => "show", :rev => c.revision %></span>
+        </div>
+        <div class="textile">
+          <%= c.comment.wikify rescue nil %>
+        </div>
+      </div>
+    <% end %>
+  </div> <!-- /comments -->
+</div> <!-- /page -->

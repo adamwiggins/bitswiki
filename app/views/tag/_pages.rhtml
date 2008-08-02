@@ -1,0 +1,12 @@
+<table><tr>
+  <% cols = make_columns(pages) %>
+  <% cols.each do |col| %>
+    <td width="<%= 100 / cols.length %>%" class="tagcolumn"><table>
+      <% col.each do |p| %>
+        <tr><td>
+          <%= link_to p.title, page_url(:controller => 'page', :title => p.title) %><br />
+        </td></tr>
+      <% end %>
+    </table></td>
+  <% end %>
+</table>

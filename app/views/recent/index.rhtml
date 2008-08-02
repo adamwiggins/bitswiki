@@ -1,0 +1,13 @@
+<% @rss_feed = auto_discovery_link_tag(:rss, feed_url_options()) %>
+
+<%= render :file => "drawers/default_links" %>
+<%= render :file => "drawers/search" %>
+
+<div id="recent">
+  <div id="recent_feed">
+    <%= feed_icon %> <%= relative_time(Page.last_modified) %>
+  </div>
+  <h1>all pages &raquo; recent changes</h1>
+  <hr />
+  <%= render :partial => 'items', :object => Page.recent_items, :locals => { :options => { :columns => 3, :min_rows => 4 } } %>
+</div>

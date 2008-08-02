@@ -1,0 +1,3 @@
+page << "editManager.cancel();"
+page[:page_content].replace_html @content
+page[:edit_content].replace_html @revision.content

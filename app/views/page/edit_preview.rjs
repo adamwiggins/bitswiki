@@ -1,0 +1,1 @@
+page[:page_content].replace_html @content

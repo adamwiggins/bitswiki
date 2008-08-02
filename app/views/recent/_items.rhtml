@@ -1,0 +1,11 @@
+<table class="itemrow">
+  <% group_by_page(items, options).each do |page, items| %>
+    <tr>
+      <td class="pagename" rowspan="<%= items.length %>"><%= link_to page.title, page_url(:title => page.title) %></td>
+      <%= render :partial => 'recent/item', :object => items.shift %>
+    </tr>
+    <tr>
+      <%= render :partial => 'recent/item', :collection => items, :spacer_template => "recent/item_spacer" %>
+    </tr>
+  <% end %>
+</table>

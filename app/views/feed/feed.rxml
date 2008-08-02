@@ -1,0 +1,26 @@
+xml.instruct!
+xml.rss "version" => "2.0", "xmlns:dc" => "http://purl.org/dc/elements/1.1/" do
+  xml.channel do
+
+    tag = @feed.class == Tag ? "[tag] " : ""
+    xml.title "Bitscribe Wiki -- #{tag}#{@feed.name}"
+    xml.link link_for(@feed, :only_path => false)
+    xml.description @feed.class == Recent ? "All recent changes" : "Recent changes to #{@feed.class.to_s.downcase} #{@feed.name}"
+    if @feed.last_modified
+      xml.pubDate CGI.rfc1123_date(@feed.last_modified)
+      xml.lastBuildDate CGI.rfc1123_date(@feed.last_modified) 
+    end
+
+    @feed.recent_items(:since => @since, :limit => 30).each do |item|
+      xml.item do
+        page = @feed.class != Page ? "#{item.page.title} -- " : ""
+        xml.title page + (item.class == Revision ? "Revision #{item.rid} by #{item.user.name.capitalize}" : "Comment by #{item.user.name.capitalize}")
+        xml.link recent_item_link(item, :only_path => false)
+        xml.description item.content.wikify(:base_href => request.env['HTTP_HOST'])
+        xml.guid "#{item.page.id}_#{item.class.to_s.downcase}_#{item.id}", "isPermaLink" => "false"
+        xml.pubDate CGI.rfc1123_date(item.created_at)
+      end
+    end
+
+  end
+end

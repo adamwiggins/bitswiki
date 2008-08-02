@@ -1,0 +1,41 @@
+<% @rss_feed = auto_discovery_link_tag(:rss, feed_url_options(@tag)) %>
+
+<%= render :file => "drawers/default_links" %>
+<%= render :file => "drawers/search" %>
+
+<div id="page">
+  <h1>
+    <%= link_to "all tags", :controller => 'tag', :tag => nil %> &raquo;
+    
+    <% @tag.parents.each { |tag| %><%= link_to(tag.basename, :controller => 'tag', :tag => tag.name) %>.<% } %><%= @tag.basename %>
+  </h1>
+  <hr />
+  <% if @tag.subtagged.length > 0 %>
+    <h2>Subtags</h2>
+    <%= render :partial => 'tags', :locals => { :options => { :top => @tag.name } } %>
+  <% end %>
+  
+  <% unless @tag.tagged.length > 0 || @tag.subtagged.length > 0 %>
+    <h2>Tagged Pages</h2>
+    no tagged pages
+  <% else %>
+    <% if @tag.tagged.length > 0 %>
+      <h2>Tagged Pages</h2>
+      <%= render :partial => 'pages', :locals => { :pages => @tag.tagged } %>
+    <% end %>
+
+    <% if @tag.subtagged.length > 0 %>
+      <h2>Subtagged Pages</h2>
+      <%= render :partial => 'pages', :locals => { :pages => @tag.subtagged } %>
+    <% end %>
+
+    <br /><hr />
+    <div id="recent_feed">
+      <%= feed_icon(@tag) %> <%= relative_time(@tag.last_modified) rescue nil %>
+    </div>
+    <h2 class="recent">Recent Changes</h2>
+    <table class="recent"><tr>
+      <%= render :partial => 'recent/items', :object => @tag.recent_items, :locals => { :options => { :limit => 15 } } %>
+    </table>
+  <% end %>
+</div>

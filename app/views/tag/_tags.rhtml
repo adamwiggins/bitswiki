@@ -1,0 +1,11 @@
+<div class="tags_list">
+<%
+  options ||= { }
+  tag = options[:top] || ""
+  indent_tags(Tag.all_tags(options)).each do |e|
+    t, indent = e
+%>
+    <%= "&nbsp;" * 5 * indent %>
+    <%= link_to t.name, :controller => 'tag', :tag => t.name %> (<%= t.count %>)<br />
+  <% end %>
+</div>

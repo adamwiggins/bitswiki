@@ -1,0 +1,20 @@
+<div>
+  <%= show_errors %>
+  <%= start_form_tag :action => "save", :rev => params[:rev] %><br>
+    <fieldset>
+      <legend>Edit Page</legend>
+
+        <h2><%= @page.title %></h2>
+        <p><%= text_area :revision, :content %></p>
+        <% if @revision && @revision.latest? %>
+          <p><%= check_box_tag :minor %> Minor</p>
+        <% end %>
+
+        <% unless @user %>
+          <input type="text" name="user" value="anonymous" size="16" />
+        <% end %>
+
+        <%= submit_tag "Save" %>
+    </fieldset>
+  <%= end_form_tag %>
+</div>

@@ -1,0 +1,20 @@
+<table class="itemrow_tight">
+  <% group_by_page(items_tight, options).each do |page, items| %>
+    <% items.each do |item| %>
+      <% page = item.page %>
+      <tr>
+        <td class="itemtime">
+          <%= relative_time(item.created_at) %>
+        </td>
+        <td class="pagename" rowspan="<%= items.length %>"><%= link_to page.title, page_url(:title => page.title) %></td>
+      </tr>
+      <tr>
+        <td></td>
+        <td class="itemdesc">
+          <% name = item.class == Revision ? "revision #{item.rid} by #{item.user.name}" : "comment by #{item.user.name}" %>
+          <%= link_to name, recent_item_link(item) %>
+        </td>
+      </tr>
+    <% end %>
+  <% end %>
+</table>

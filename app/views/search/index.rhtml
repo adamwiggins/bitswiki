@@ -1,0 +1,50 @@
+<script type="text/javascript">
+  Event.observe(window, 'load', function(){ Field.focus('search_box') }, false)
+</script>
+<%= render :file => "drawers/default_links" %>
+<%= render :file => "drawers/search" %>
+<%= render :file => "errors/flash" %>
+
+<% unless @tags.length > 0 || @page_items.length > 0 %>
+  <h2>no results</h2>
+<% end %>
+
+<div id="page">
+
+  <% if @tags.length > 0 %>
+    <h1>Tags</h1>
+    <hr />
+    <span class="search_hits"><%= pluralize(@tags.length, "tag") %></span>
+    
+    <table><tr>
+      <% cols = make_columns(@tags) %>
+      <% cols.each do |col| %>
+        <td width="<%= 100 / cols.length %>%" class="tagcolumn"><table>
+          <% col.each do |t| %>
+            <tr><td>
+              <%= link_to t.name, tag_url(:tag => t.name) %>
+            </td></tr>
+          <% end %>
+        </table></td>
+      <% end %>
+    </table>
+    
+  <% end %>
+
+  <% if @page_items.length > 0 %>
+    <h1>Pages</h1>
+    <hr />
+    <span class="search_hits"><%= pluralize(@page_items.length, "page") %></span>
+
+    <% @page_items.each do |item| %>
+      <%= link_to item.page.title, page_url(:title => item.page.title) %><br />
+      <div class="search_result">
+        <% @terms.split.each do |term| %>
+          <%= "Comment: " if item.class == Comment %>
+          <%=  highlight(excerpt(h(item.content), term, 30), term) %><br />
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+</div>

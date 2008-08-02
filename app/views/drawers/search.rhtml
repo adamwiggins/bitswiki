@@ -1,0 +1,5 @@
+<div id="search" class="drawer" <%= 'style="display: none"' unless show_search? %>><div id="search_inner">
+  <%= form_tag :controller => "search" %>
+    <%= text_field_tag "search", nil, :size => "25", :id => "search_box", :value => params[:search] %>
+  </form>
+</div></div>

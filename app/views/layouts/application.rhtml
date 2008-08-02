@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+  <title>Wiki<%= @title &&= " | #{@title}" %></title>
+  <%= stylesheet_link_tag "main", :media => "all" %>
+  <%= javascript_include_tag :defaults %>
+  <%= @rss_feed %>
+</head>
+
+<body>
+  <a href="" id="emptyfocus"></a> <!-- (for keyboard controls) -->
+  <div id="header">
+    <div id="user">
+      <%
+        links = []
+        links << @user.name if @user
+        begin
+          ExternalLinks.each do |text, url|
+            links << link_to(text, url)
+          end
+        rescue
+        end
+      %>
+      <%= links.join(" | ") %>
+    </div>
+    <%= link_to(image_tag(Logo, :border => 0), { :controller => 'page', :title => '', :action => 'show' }, :id => "logo") %>
+  </div>
+
+  <div id="content">
+    <%= yield %>
+  </div>
+</body>
+</html>

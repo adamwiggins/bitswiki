@@ -1,0 +1,6 @@
+<% if flash.now[:error] %>
+  <div id="error"><%= flash.now[:error] %></div>
+<% end %>
+<% if flash.now[:notice] %>
+  <div id="notice"><%= flash.now[:notice] %></div>
+<% end %>
