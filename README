@@ -1,0 +1,25 @@
+= Bitswiki
+
+There are lots of Ruby wikis. Why another one? Simple: this one is sweet.
+
+Ok, that’s not exactly it. Really we just needed a simple, fast, extensible wiki for our own internal use. After we were done we realized that it might be useful to others, too. So here you go.
+
+= Features
+
+* Tags
+* Search
+* Textile markdown plus enhancements for inline source code
+* Revision comparison (inspired by Instiki and Writeboard)
+* Recent changes listing
+* RSS feeds for individual page changes or entire wiki
+* Sweet scriptaculous drawer effects
+* Written in Rails for easy modification
+
+= Credits
+
+Written by James Lindenbaum.  Packaged for open source release by Adam Wiggins.
+
+Released under the MIT License: http://www.opensource.org/licenses/mit-license.php
+
+http://github.com/adamwiggins/bitswiki
+
