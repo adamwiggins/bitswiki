@@ -1,8 +1,8 @@
 = Bitswiki
 
-There are lots of Ruby wikis. Why another one? Simple: this one is sweet.
+There are lots of Ruby wikis.  Why another one?  Simple: this one is sweet.
 
-Ok, that’s not exactly it. Really we just needed a simple, fast, extensible wiki for our own internal use. After we were done we realized that it might be useful to others, too. So here you go.
+Ok, that’s not exactly it.  Really we just needed a simple, fast, extensible wiki for our own internal use.  After we were done we realized that it might be useful to others, too.  So here you go.
 
 = Features
 
