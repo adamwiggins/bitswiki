@@ -3,15 +3,6 @@ class FeedController < ApplicationController
   before_filter :since
   layout nil
 
-  def authenticate
-    unless WikiOptions[:allow_anonymous_read]
-      unless params[:key] && User.find_by_key(params[:key])
-        render :nothing => true, :status => 403 # forbidden
-        return false
-      end
-    end
-  end
-
   def page
     @feed = Page.find_by_title(params[:name])
     feed

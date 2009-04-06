@@ -10,9 +10,7 @@
           <p><%= check_box_tag :minor %> Minor</p>
         <% end %>
 
-        <% unless @user %>
-          <input type="text" name="user" value="anonymous" size="16" />
-        <% end %>
+        <input type="text" name="user" value="<%= @username || 'anonymous' %>" size="16" />
 
         <%= submit_tag "Save" %>
     </fieldset>

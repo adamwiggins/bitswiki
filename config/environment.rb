@@ -9,14 +9,7 @@ Rails::Initializer.run do |config|
   }
 end
 
-Logo = "bitswiki.png"
-
 ExternalLinks = {
   # "link text" => "url"
 }
 
-WikiOptions = {
-  :allow_anonymous_read   => true,
-  :allow_anonymous_write  => true,
-  :access_denied_url       => '/login'
-}

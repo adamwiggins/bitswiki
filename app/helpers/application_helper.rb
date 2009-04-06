@@ -96,7 +96,6 @@ module ApplicationHelper
   end
 
   def can_edit?
-    return true if @user
-    return WikiOptions[:allow_anonymous_write]
+    true
   end
 end

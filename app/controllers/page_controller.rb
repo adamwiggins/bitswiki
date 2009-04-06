@@ -5,6 +5,7 @@ class PageController < ApplicationController
 
   def show
     redirect_to(:action => "edit", :title => @title) and return if @revision.new_record?
+    @username = session[:user_name]
     @content = @revision.content.wikify if @revision.content
   end
 
@@ -15,6 +16,7 @@ class PageController < ApplicationController
 
   def edit
     @content = @revision.content.wikify unless @revision.new_record?
+    @username = session[:user_name]
     render :action => "show"
   end
 
@@ -26,19 +28,11 @@ class PageController < ApplicationController
     @content = @revision.content.wikify if @revision.content
   end
 
-  Anonymous = 'anonymous'  
-
   def save
     redirect_to :action => "show" and return if params[:cancel]
 
-    @user = User.find_or_create(session[:user_name]) if session[:user_name]
-    return unless check_write_access
-
-    if WikiOptions[:allow_anonymous_write]
-      @user ||= User.find_or_create(params[:user][:name]) || Anonymous
-    end
-
-    session[:user_name] = @user.name unless @user.name == Anonymous
+    @user = User.find_or_create(params[:user][:name])
+    session[:user_name] = @user.name unless @user.name == 'anonymous'
 
     page_saved = @page.update_attributes(params[:page])
 
@@ -93,8 +87,6 @@ class PageController < ApplicationController
   end
 
   def save_tags
-    return unless check_write_access
-
     if params[:save] && params[:edit_tags]
       @page.tag_with params[:edit_tags].split("\n").collect { |t| '"' + t.strip + '"' }.join(" ")
     end
@@ -116,11 +108,6 @@ class PageController < ApplicationController
     redirect_to :action => "show"
   end
 
-  def logout
-    session[:user_name] = nil
-    redirect_to '/'
-  end
-
   private
 
   def load_page
@@ -134,13 +121,5 @@ class PageController < ApplicationController
     @revision = @page.revisions.find_by_id @rev if @rev
     @revision ||= @page.revisions.find(:first)
     @revision ||= Revision.new
-  end
-
-  def check_write_access
-    if !@user and (WikiOptions[:allow_anonymous_write] == false)
-      redirect_to WikiOptions[:access_denied_url]
-      return false
-    end
-    return true
   end
 end
