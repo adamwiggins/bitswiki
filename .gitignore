@@ -1,5 +1,2 @@
 tmp
-log
 db/*.sqlite3
-data.dump
-db/data.yml
